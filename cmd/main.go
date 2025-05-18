@@ -12,12 +12,33 @@ import (
 
 func main() {
 	// Database connection
-	connStr := "postgres://postgres:postgres@localhost:5432/vibe?sslmode=disable"
+	dbHost := getEnvDefault("DB_HOST", "localhost")
+	dbUser := getEnvDefault("DB_USER", "postgres")
+	dbPassword := getEnvDefault("DB_PASSWORD", "postgres")
+	dbName := getEnvDefault("DB_NAME", "vibe")
+	dbPort := getEnvDefault("DB_PORT", "5432")
+
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		dbUser, dbPassword, dbHost, dbPort, dbName)
+	
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	// Wait for database to be ready
+	for i := 0; i < 30; i++ {
+		err = db.Ping()
+		if err == nil {
+			break
+		}
+		log.Printf("Waiting for database... %v", err)
+		time.Sleep(time.Second)
+	}
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
 
 	// Create router
 	r := mux.NewRouter()
