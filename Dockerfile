@@ -13,10 +13,13 @@ RUN go mod download
 RUN go mod tidy
 
 # Build the application
-RUN go build -o main ./cmd/main.go
+RUN go build -o /app/main ./cmd/main.go
+
+# Verify the binary exists
+RUN ls -l /app/main
 
 # Expose port 8080
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["./main"]
+CMD ["/app/main"]
