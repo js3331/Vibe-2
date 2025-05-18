@@ -5,14 +5,12 @@ WORKDIR /app
 # Install build dependencies
 RUN apk add --no-cache gcc musl-dev
 
-# Copy go mod and sum files
-COPY go.mod ./
-
-# Download all dependencies
-RUN go mod download
-
-# Copy the source code
+# Copy go mod and source files
 COPY . .
+
+# Download dependencies and generate go.sum
+RUN go mod download
+RUN go mod tidy
 
 # Build the application
 RUN go build -o main ./cmd/main.go
