@@ -2,23 +2,37 @@ version: '3'
 
 services:
   app:
-    build: .
+    container_name: vibe-app
+    hostname: vibe-app
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
-      - DB_HOST=db
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=vibe
-      - DB_PORT=5432
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: vibe
+      DB_PORT: 5432
+    networks:
+      - vibe-network
     depends_on:
       - db
 
   db:
+    container_name: vibe-db
+    hostname: vibe-db
     image: postgres:15-alpine
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=vibe
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: vibe
+    networks:
+      - vibe-network
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+networks:
+  vibe-network:
+    driver: bridge
